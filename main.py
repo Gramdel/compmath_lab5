@@ -1,6 +1,9 @@
 from numpy import arange
 import matplotlib.pyplot as plt
-from io_unit import choose_func
+from io_unit import choose_eq
+from io_unit import input_point
+from io_unit import input_n
+from io_unit import input_b
 
 
 def divided_differences(x_values, y_values, k):
@@ -31,10 +34,20 @@ def create_newton_polynomial(x_values, y_values):
     return newton_polynomial
 
 
-def show_plot(x, y, clear_x, clear_y, f_as_text):
+def euler_method(x_values, y_values, eq, n, b):
+    h = (b - x_values[0]) / n
+    for i in range(1, n + 1):
+        x_values.append(x_values[0] + i * h)
+        y_values.append(y_values[-1] + h * eq(x_values[-1], y_values[-1]))
+    return x_values, y_values
+
+
+def show_plot(x_values, y_values, true_x_values, true_y_values, newton_y_values, f_as_text):
     fig, ax = plt.subplots()
-    ax.plot(x, y, color="red", label="Полином")
-    ax.plot(clear_x, clear_y, color="green", label=f_as_text)
+    ax.plot(true_x_values, true_y_values, color="green", label=f_as_text)
+    ax.plot(true_x_values, newton_y_values, color="red", label="Полином")
+    for i in range(len(x_values)):
+        plt.plot(x_values[i], y_values[i], "ro", markersize=4)
     ax.grid()
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
@@ -43,19 +56,24 @@ def show_plot(x, y, clear_x, clear_y, f_as_text):
 
 
 def main():
-    print("Вас приветствует программа для демонстрации метода интерполяции полиномом Ньютона!")
-    f, f_as_text, x, y = choose_func()
-    clear_x = arange(x[0], x[len(x) - 1] + 0.1, 0.1)
-    clear_y = []
-    for i in clear_x:
-        clear_y.append(f(i))
+    print("Вас приветствует программа для демонстрации решения задачи Коши методом Эйлера!")
+    x0, y0 = input_point()
+    eq, f, f_as_text = choose_eq(x0, y0)
+    n = input_n()
+    b = input_b(x0)
 
-    newton_pol = create_newton_polynomial(x, y)
-    newton_y = []
-    for i in clear_x:
-        newton_y.append(newton_pol(i))
+    x_values, y_values = euler_method([x0], [y0], eq, n, b)
 
-    show_plot(clear_x, newton_y, clear_x, clear_y, f_as_text)
+    newton_pol = create_newton_polynomial(x_values, y_values)
+    delta = 0 if x_values[1] - x_values[0] < 0.01 else 0.01
+    true_x_values = arange(x_values[0], x_values[-1] + delta, delta)
+    true_y_values = []
+    newton_y_values = []
+    for i in true_x_values:
+        true_y_values.append(f(i))
+        newton_y_values.append(newton_pol(i))
+
+    show_plot(x_values, y_values, true_x_values, true_y_values, newton_y_values, f_as_text)
 
 
 main()

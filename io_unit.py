@@ -11,34 +11,75 @@ def handle_error(msg):
     quit(-1)
 
 
-def choose_func(f=None, f_as_text=None, x=None, y=None):
-    f_list = ["y = x", "y = x^2", "y = lg(x)", "y = sin(x)"]
-    print("Программа умеет работать со следующими функциями:")
-    for i in range(len(f_list)):
-        print(str(i+1) + ". " + f_list[i])
+def input_point():
     while 1:
-        print("Введите номер нужной функции (целое число от 1 до 4):")
+        print("Введите начальное условие (действительные координаты X0 и Y0 через пробел, разделитель - точка):")
+        try:
+            tmp = input().split(" ")
+            if len(tmp) != 2:
+                raise ValueError()
+            x = float(tmp[0])
+            y = float(tmp[1])
+            return x, y
+        except ValueError:
+            handle_error("Ошибка ввода! Требуется ввести два действительных числа через пробел (разделитель - точка).")
+
+
+def choose_eq(x0, y0, eq=None, f=None, f_as_text=None):
+    eq_list = ["y′ = (x-y)^2 + 1", "y′ = xy", "y′ = e^x + y", "y′ = x^2 - y"]
+    print("Программа умеет работать со следующими уравнениями:")
+    for i in range(len(eq_list)):
+        print(str(i + 1) + ". " + eq_list[i])
+    while 1:
+        print("Введите номер нужного уравнения (целое число от 1 до 4):")
         try:
             tmp = int(input())
             if (tmp < 1) | (tmp > 4):
                 raise ValueError()
             elif tmp == 1:
-                f = lambda x: x
-                x = [-5, -4.5, -4, -3.5, -3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
-                y = [-5, -4.5, -3.5, -3.5, -3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
+                c = x0 + 1 / (y0 - x0)
+                f_as_text = "y = x + 1/(" + str(c) + " - x)"
+                f = lambda x: x + 1 / (c - x)
+                eq = lambda x, y: (x - y) ** 2 + 1
             elif tmp == 2:
-                f = lambda x: x * x
-                x = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]
-                y = [25, 16, 9, 4, 1, 0, 1, 4, 6, 16, 25]
+                c = y0 / (math.e ** (x0 * x0 / 2))
+                f_as_text = "y = " + str(c) + "*e^(x^2/2)"
+                f = lambda x: c * math.e ** (x * x / 2)
+                eq = lambda x, y: x * y
             elif tmp == 3:
-                f = lambda x: math.log10(x)
-                x = [0.3, 0.5, 1, 2, 3, 4, 5]
-                y = [-0.5, -0.3, 0, 0.3, 0.4, 0.6, 0.7]
+                c = y0 / math.e ** x0 - x0
+                f_as_text = "y = (" + str(c) + " + x) * e^x"
+                f = lambda x: (c + x) * math.e ** x
+                eq = lambda x, y: math.e ** x + y
             elif tmp == 4:
-                f = lambda x: math.sin(x)
-                x = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]
-                y = [0.95, 0.75, 0.2, -0.9, -0.84, 0, 0.84, 0.9, 0.14, -0.75, -0.95]
-            f_as_text = f_list[tmp - 1]
-            return f, f_as_text, x, y
+                c = (y0 - x0 ** 2 + 2 * x0 - 2) / math.e ** (-x0)
+                f_as_text = "y = " + str(c) + "*e^(-x) + x^2 - 2x + 2"
+                f = lambda x: c * math.e ** (-x) + x ** 2 - 2 * x + 2
+                eq = lambda x, y: x ** 2 - y
+            return eq, f, f_as_text
         except ValueError:
-            handle_error("Ошибка ввода! Требуется ввести номер функции - целое число от 1 до 4.")
+            handle_error("Ошибка ввода! Требуется ввести номер уравнения - целое число от 1 до 4.")
+
+
+def input_n():
+    while 1:
+        print("Введите N - количество точек для метода Эйлера (целое число не меньше 2):")
+        try:
+            n = int(input())
+            if n < 2:
+                raise ValueError()
+            return n
+        except ValueError:
+            handle_error("Ошибка ввода! Требуется ввести N - целое число не меньше 2.")
+
+
+def input_b(x0):
+    while 1:
+        print("Введите B - правую границу для метода Эйлера (действительное число, больше X0, разделитель - точка):")
+        try:
+            b = float(input())
+            if b <= x0:
+                raise ValueError()
+            return b
+        except ValueError:
+            handle_error("Ошибка ввода! Требуется ввести B - действительное число больше X0, разделитель - точка.")

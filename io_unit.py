@@ -52,7 +52,7 @@ def choose_eq(x0, y0, eq=None, f=None, f_as_text=None):
                 f = lambda x: (c + x) * math.e ** x
                 eq = lambda x, y: math.e ** x + y
             elif tmp == 4:
-                c = (y0 - x0 ** 2 + 2 * x0 - 2) / math.e ** (-x0)
+                c = (y0 - x0 ** 2 + 2 * x0 - 2) / (math.e ** (-x0))
                 f_as_text = "y = " + str(c) + "*e^(-x) + x^2 - 2x + 2"
                 f = lambda x: c * math.e ** (-x) + x ** 2 - 2 * x + 2
                 eq = lambda x, y: x ** 2 - y

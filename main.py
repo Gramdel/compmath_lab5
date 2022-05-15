@@ -1,7 +1,7 @@
 from numpy import arange
 import matplotlib.pyplot as plt
-from io_unit import choose_eq
 from io_unit import input_point
+from io_unit import choose_eq
 from io_unit import input_n
 from io_unit import input_b
 
@@ -65,8 +65,7 @@ def main():
     x_values, y_values = euler_method([x0], [y0], eq, n, b)
 
     newton_pol = create_newton_polynomial(x_values, y_values)
-    delta = 0 if x_values[1] - x_values[0] < 0.01 else 0.01
-    true_x_values = arange(x_values[0], x_values[-1] + delta, delta)
+    true_x_values = x_values if x_values[1] - x_values[0] < 0.01 else arange(x_values[0], x_values[-1] + 0.01, 0.01)
     true_y_values = []
     newton_y_values = []
     for i in true_x_values:
